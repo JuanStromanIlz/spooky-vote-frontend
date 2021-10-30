@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const spookyAPI = axios.create({
-  baseURL: 'http://spooky-vote.herokuapp.com/'
+  baseURL: 'https://spooky-vote.herokuapp.com/'
 });
 
 function handleError(err) {
