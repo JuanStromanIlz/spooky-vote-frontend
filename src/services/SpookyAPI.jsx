@@ -5,7 +5,7 @@ const spookyAPI = axios.create({
 });
 
 function handleError(err) {
-  console.log(err.message);
+  throw new Error(err.message);
 }
 
 export async function getAll() {

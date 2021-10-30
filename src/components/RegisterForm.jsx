@@ -1,16 +1,17 @@
+import { useState } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import TextField from '@mui/material/TextField';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Button from '@mui/material/Button';
-import { register } from 'services/SpookyAPI';
+import Box from '@mui/material/Box';
 import AvatarInput from 'components/common/AvatarInput';
 
 const RegisterSchema = Yup.object().shape({
   name: Yup.string()
-    .required('Name is required'),
+    .required('El nombre del personaje es obligatorio.'),
   actor: Yup.string()
-    .required('Actor is required'),
+    .required('Tu nombre es obligatorio.'),
   avatar: Yup.mixed()
   .test((value, {createError}) => {
     if (value.length === 0) {
@@ -23,9 +24,11 @@ const RegisterSchema = Yup.object().shape({
   })
 });
 
-export default function RegisterForm() {
+export default function RegisterForm({onSubmit, register, setLoading}) {
+  const [formSend, setFormSend] = useState(false);
+
   return (
-    <div>
+    <Box>
       <Formik
         initialValues={{
           name: '',
@@ -33,12 +36,17 @@ export default function RegisterForm() {
           avatar: []
         }}
         validationSchema={RegisterSchema}
-        onSubmit={register}
+        onSubmit={(values, {resetForm}) => {
+          onSubmit(values);
+          resetForm();
+          setFormSend(true);
+          setLoading(true);
+        }}
       >
         {({ errors, values, touched, handleChange }) => (
           <Form>
             <FormGroup>
-              <Field name='avatar' component={AvatarInput} error={Boolean(errors.avatar)}/>
+              <Field name='avatar' component={AvatarInput} error={errors.avatar} clean={formSend} />
               <TextField 
                 fullWidth
                 id="name"
@@ -66,10 +74,10 @@ export default function RegisterForm() {
                 autoComplete="off"
               />
             </FormGroup>
-            <Button size='large' variant='contained' type='submit'>Registrarme</Button>
+              <Button disabled={formSend || register} size='large' variant='contained' type='submit' sx={{marginTop: '16px', width: '100%'}}>Registrarme</Button>
           </Form>
         )}
       </Formik>
-    </div>
+    </Box>
   );
 }

@@ -16,16 +16,16 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <UserContext>
-        <Router>
-          <Switch>
-            <Route exact path='/' component={Home} />
-            <Route path='/votar' component={Vote} />
-            <Route path='/participar' component={NewCharacter} />
-            <Route path='/ganadores' component={Winners} />
-          </Switch>
-        </Router>
-      </UserContext>
+      <Router>
+        <UserContext>
+            <Switch>
+              <Route exact path='/' component={Home} />
+              <Route path='/votar' component={Vote} />
+              <Route path='/participar' component={NewCharacter} />
+              <Route path='/ganadores' component={Winners} />
+            </Switch>
+        </UserContext>
+      </Router>
     </ThemeProvider>
   );
 }

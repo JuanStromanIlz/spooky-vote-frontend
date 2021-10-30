@@ -4,22 +4,16 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { vote } from 'services/SpookyAPI';
 
-export default function CardVote({item}) {
-
-  async function voteForThis(id) {
-    let res = await vote(id);
-    console.log(res);
-  }
+export default function CardVote({item, voteAction, canInVote}) {
 
   return (
     <Card>
       <CardMedia
         component='img'
-        image={item.avatar.url}
+        image={item.avatar.secure_url}
         alt={item.name}
-        style={{aspectRatio: 1}}
+        sx={{aspectRatio: '1'}}
       />
       <CardContent>
         <Typography gutterBottom variant='h5' color='primary' component='div'>
@@ -30,7 +24,7 @@ export default function CardVote({item}) {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button onClick={() => voteForThis(item._id)} size='large' variant='contained' style={{width: '100%'}}>Votar</Button>
+        <Button onClick={() => voteAction(item)} disabled={canInVote} size='large' variant='contained' style={{width: '100%'}}>Votar</Button>
       </CardActions>
     </Card>
   );
