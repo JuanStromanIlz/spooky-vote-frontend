@@ -43,7 +43,7 @@ export default function FileInput({ form, field, error, clean }) {
         setFileSelected(URL.createObjectURL(res));
       },
       error: () => {
-        openSnack('El archivo debe ser una imagen.', 'error');
+        openSnack('open', 'El archivo debe ser una imagen.', 'error');
       }
     });
   };

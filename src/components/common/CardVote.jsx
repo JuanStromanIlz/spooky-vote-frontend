@@ -24,7 +24,7 @@ export default function CardVote({item, voteAction, canInVote}) {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button onClick={() => voteAction(item)} disabled={canInVote} size='large' variant='contained' style={{width: '100%'}}>Votar</Button>
+        <Button onClick={() => voteAction('open', item)} disabled={canInVote} size='large' variant='contained' style={{width: '100%'}}>Votar</Button>
       </CardActions>
     </Card>
   );

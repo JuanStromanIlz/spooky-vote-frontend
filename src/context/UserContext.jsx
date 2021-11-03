@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router-dom';
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useReducer } from 'react';
 import { getAll, vote, register, winners } from 'services/SpookyAPI';
 import SnackNotification from 'components/common/SnackNotification';
 import DialogBox from 'components/common/Dialog';
@@ -7,32 +7,80 @@ import DialogBox from 'components/common/Dialog';
 const User = createContext();
 const {Consumer, Provider} = User;
 
+const initialUser = {
+  alreadyVote: false,
+  alreadyRegister: false
+};
+
+const initialSnack = {
+  isOpen: false,
+  severity: '',
+  message: ''
+};
+
+const initialDialog = {
+  isOpen: false,
+  _id: '',
+  name: ''
+};
+
+let localUser = JSON.parse(localStorage.getItem('spooky-vote'));
+
 export default function UserContext({children}) {
-  const [alreadyRegister, setAlreadyRegister] = useState(false);
-  const [alreadyVote, setAlreadyVote] = useState(false);  
-  const [snack, setSnack] = useState(false);
-  const [info, setInfo] = useState({});
-  const [dialog, setDialog] = useState(false);
-  const [dialogInfo, setDialogInfo] = useState({});
+  const [user, userDispatch] = useReducer(userReducer, localUser ? localUser : initialUser);
+  const [snack, setSnack] = useState(initialSnack);
+  const [dialog, setDialog] = useState(initialDialog);
 
   let history = useHistory();
 
-  const closeSnack = () => setSnack(false);
-
-  const closeDialog = () => setDialog(false);
-
-  function openSnack(res, typeOfSnack) {
-    let newSnack = {
-      severity: typeOfSnack,
-      message: res
-    };
-    setInfo(newSnack);
-    setSnack(true);
+  function userReducer(state, action) {
+    switch (action.type) {
+      case 'vote': {
+        let newData = {
+          ...state,
+          alreadyVote: true
+        };
+        localStorage.setItem('spooky-vote', JSON.stringify(newData));
+        return newData;
+      }
+      case 'register': {
+        let newData = {
+          ...state,
+          alreadyRegister: true
+        };
+        localStorage.setItem('spooky-vote', JSON.stringify(newData));
+        return newData;
+      }
+      default: return state;
+    }
   }
 
-  function openDialog(item) {
-    setDialogInfo(item);
-    setDialog(true);
+  function snackConfig(type, severity, message) {
+    setSnack(() => {
+      if (type === 'open') {
+        return {
+          isOpen: true,
+          severity: severity,
+          message: message
+        }
+      } else {
+        return initialSnack;
+      }
+    });
+  }
+
+  function dialogConfig(type, item) {
+    setDialog(() => {
+      if (type === 'open') {
+        return {
+          isOpen: true,
+          _id: item._id,
+          name: item.name
+        }
+      } else {
+        return initialDialog;
+      }
+    });
   }
 
   async function getAllCharacters() {
@@ -41,33 +89,31 @@ export default function UserContext({children}) {
       return all;
     }
     catch(err) {
-      openSnack(err.message, 'error');
+      snackConfig('open', 'error', err.message);
     }
   }
 
   async function registerCharacter(data) {
     try {
       let res = await register(data);
-      openSnack(res, 'success');
-      setAlreadyRegister(true);
-      localStorage.setItem('spooky-register', 'true');
+      userDispatch({type: 'register'});
+      snackConfig('open', 'success', res);
       history.push('/');
     }
     catch(err) {
-      openSnack(err.message, 'error');
+      snackConfig('open', 'error', err.message);
     }
   }
 
   async function voteForThis(id) {
     try {
       let res = await vote(id);
-      setDialog(false);
-      openSnack(res, 'success');
-      setAlreadyVote(true);
-      localStorage.setItem('spooky-vote', 'true');
+      dialogConfig('close');
+      userDispatch({type: 'vote'});
+      snackConfig('open', 'success', res);
     }
     catch(err) {
-      openSnack(err.message, 'error');
+      snackConfig('open', 'error', err.message);
     }
   }
 
@@ -77,40 +123,32 @@ export default function UserContext({children}) {
       return res;
     }
     catch(err) {
-      openSnack(err.message, 'error');
+      snackConfig('open', 'error', err.message);
     }
   }
 
-  useEffect(()=> {
-    let localVote = localStorage.getItem('spooky-vote');
-    setAlreadyVote(JSON.parse(localVote));
-    let localRegister = localStorage.getItem('spooky-register');
-    setAlreadyRegister(JSON.parse(localRegister));
-  }, [alreadyVote, alreadyRegister]);
-
   return (
     <Provider value={{
-      vote: alreadyVote,
-      register: alreadyRegister,
+      vote: user.alreadyVote,
+      register: user.alreadyRegister,
       characters: getAllCharacters,
       registerCharacter: registerCharacter,
-      openSnack: openSnack,
+      openSnack: snackConfig,
       voteForThis: voteForThis,
-      openDialog: openDialog,
+      openDialog: dialogConfig,
       winners: getWinners
     }}>
       {children}
-
+      <button onClick={registerCharacter}>register</button>
+      <button onClick={voteForThis}>vote</button>
       <SnackNotification 
-        open={snack}
-        closeSnack={closeSnack}
-        info={info}
+        snack={snack}
+        closeSnack={() => snackConfig('close')}
       />
 
       <DialogBox
-        open={dialog}
-        closeDialog={closeDialog}
-        info={dialogInfo}
+        dialog={dialog}
+        closeDialog={() => dialogConfig('close')}
         action={voteForThis}
       />
     </Provider>
