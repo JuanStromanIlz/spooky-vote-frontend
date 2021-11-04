@@ -44,14 +44,17 @@ export async function register(form) {
     if (res.data.status !== 'success') {
       return handleError(res.data.message);
     }
-    return 'Ya estas participando.';
+    return {
+      message: 'Ya estas participando.',
+      user: res.data.user
+    };
   }
   catch(err) {
     handleError(err);
   }
 }
 
-export async function winners() {
+export async function getWinners() {
   try {
     let res = await spookyAPI.get('character/winners');
     if (res.data.status !== 'success') {

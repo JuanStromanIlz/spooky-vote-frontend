@@ -1,6 +1,6 @@
 import { useHistory } from 'react-router-dom';
 import { createContext, useState, useReducer } from 'react';
-import { getAll, vote, register, winners } from 'services/SpookyAPI';
+import { getAll, vote, register, getWinners } from 'services/SpookyAPI';
 import SnackNotification from 'components/common/SnackNotification';
 import DialogBox from 'components/common/Dialog';
 
@@ -26,8 +26,15 @@ const initialDialog = {
 
 let localUser = JSON.parse(localStorage.getItem('spooky-vote'));
 
+const initialData = {
+  loading: true,
+  data: []
+};
+
 export default function UserContext({children}) {
   const [user, userDispatch] = useReducer(userReducer, localUser ? localUser : initialUser);
+  const [characters, charDispatch] = useReducer(dataReducer, initialData);
+  const [winners, winnersDispatch] = useReducer(dataReducer, initialData);
   const [snack, setSnack] = useState(initialSnack);
   const [dialog, setDialog] = useState(initialDialog);
 
@@ -46,12 +53,25 @@ export default function UserContext({children}) {
       case 'register': {
         let newData = {
           ...state,
-          alreadyRegister: true
+          alreadyRegister: true,
+          data: {...action.user}
         };
         localStorage.setItem('spooky-vote', JSON.stringify(newData));
         return newData;
       }
-      default: return state;
+      default: return initialUser;
+    }
+  }
+  
+  function dataReducer(state, action) {
+    switch (action.type) {
+      case 'fetch': {
+        return {
+          loading: false,
+          data: action.data
+        }
+      }
+      default: return initialData;
     }
   }
 
@@ -85,8 +105,8 @@ export default function UserContext({children}) {
 
   async function getAllCharacters() {
     try {
-      let all = await getAll();
-      return all;
+      let res = await getAll();
+      charDispatch({type: 'fetch', data: res});
     }
     catch(err) {
       snackConfig('open', 'error', err.message);
@@ -96,8 +116,8 @@ export default function UserContext({children}) {
   async function registerCharacter(data) {
     try {
       let res = await register(data);
-      userDispatch({type: 'register'});
-      snackConfig('open', 'success', res);
+      userDispatch({type: 'register', user: res.user});
+      snackConfig('open', 'success', res.message);
       history.push('/');
     }
     catch(err) {
@@ -117,10 +137,10 @@ export default function UserContext({children}) {
     }
   }
 
-  async function getWinners() {
+  async function getAllWinners() {
     try {
-      let res = await winners();
-      return res;
+      let res = await getWinners();
+      winnersDispatch({type: 'fetch', data: res});
     }
     catch(err) {
       snackConfig('open', 'error', err.message);
@@ -129,18 +149,19 @@ export default function UserContext({children}) {
 
   return (
     <Provider value={{
+      user: user.data,
       vote: user.alreadyVote,
       register: user.alreadyRegister,
-      characters: getAllCharacters,
+      characters: characters,
+      winners: winners,
+      getCharacters: getAllCharacters,
+      getWinners: getAllWinners,
       registerCharacter: registerCharacter,
       openSnack: snackConfig,
       voteForThis: voteForThis,
-      openDialog: dialogConfig,
-      winners: getWinners
+      openDialog: dialogConfig
     }}>
       {children}
-      <button onClick={registerCharacter}>register</button>
-      <button onClick={voteForThis}>vote</button>
       <SnackNotification 
         snack={snack}
         closeSnack={() => snackConfig('close')}
