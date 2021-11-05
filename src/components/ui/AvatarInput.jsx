@@ -66,7 +66,7 @@ export default function FileInput({ form, field, error, clean }) {
         <Avatar 
           className={error ? 'empty-image' : null}
           src={fileSelected} 
-          sx={{ width: 120, height: 120, borderRadius: '4px' }}  
+          sx={{ width: 120, height: 120, cursor: 'pointer' }}  
         />
       </label>
       {error ?

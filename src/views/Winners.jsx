@@ -3,7 +3,8 @@ import { User } from 'context/UserContext';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import CardWinner from 'components/common/CardWinner';
-import LinkButton from 'components/common/LinkButton';
+import LinkButton from 'components/ui/LinkButton';
+import Wrapper from 'components/ui/Wrapper';
 import useTime from 'hooks/useTime';
 
 const seeWinners = new Date('October 31, 2021 01:15:00');
@@ -19,7 +20,7 @@ export default function Winners() {
   }, [canSeeWinners, getWinners]);
 
   return (
-    <Grid container spacing={2} style={{padding: '16px'}}>
+    <Wrapper>
       <Grid item xs={12}>
         <LinkButton to='/'>Volver</LinkButton>
       </Grid>
@@ -33,11 +34,13 @@ export default function Winners() {
         </Grid>
       : canSeeWinners ?
         winners.data.length > 0 ?
-          winners.data.map((person, index) => 
-            <Grid key={person._id} item xs={12} md={3}>
-              <CardWinner item={person} position={index} />
-            </Grid>
-          )
+          <Grid spacing={2} container>
+            {winners.data.map((person, index) => 
+              <Grid key={person._id} item xs={12} md={3}>
+                <CardWinner item={person} position={index} />
+              </Grid>
+            )}
+          </Grid>
         :
           <Grid item xs={12}>
             <Typography gutterBottom variant='subtitle1' component='h2' color='text.secondary'>Nadie se anoto :((</Typography>
@@ -47,6 +50,6 @@ export default function Winners() {
           <Typography gutterBottom variant='subtitle1' component='h2' color='text.secondary'>En {distance} vas a poder ver los resultados.</Typography>
         </Grid>
       }
-    </Grid>
+    </Wrapper>
   );
 }

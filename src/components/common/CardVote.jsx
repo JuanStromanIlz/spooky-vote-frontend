@@ -16,7 +16,7 @@ export default function CardVote({item, voteAction, canInVote}) {
         sx={{aspectRatio: '1'}}
       />
       <CardContent>
-        <Typography gutterBottom variant='h5' color='primary' component='div'>
+        <Typography gutterBottom variant='h6' color='primary' component='div'>
           {item.name}
         </Typography>
         <Typography variant='subtitle1' color='text.secondary'>
@@ -24,7 +24,7 @@ export default function CardVote({item, voteAction, canInVote}) {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button onClick={() => voteAction('open', item)} disabled={canInVote} size='large' variant='contained' style={{width: '100%'}}>Votar</Button>
+        <Button onClick={() => voteAction('open', item)} disabled={canInVote} size='small' variant='contained' style={{width: '100%'}}>Votar</Button>
       </CardActions>
     </Card>
   );

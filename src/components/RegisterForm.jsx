@@ -5,7 +5,7 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import AvatarInput from 'components/common/AvatarInput';
+import AvatarInput from 'components/ui/AvatarInput';
 
 const RegisterSchema = Yup.object().shape({
   name: Yup.string()
@@ -28,7 +28,7 @@ export default function RegisterForm({onSubmit, register, setLoading}) {
   const [formSend, setFormSend] = useState(false);
 
   return (
-    <Box>
+    <Box sx={{width: '100%'}}>
       <Formik
         initialValues={{
           name: '',

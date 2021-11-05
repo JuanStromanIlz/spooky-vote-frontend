@@ -9,12 +9,13 @@ const {Consumer, Provider} = User;
 
 const initialUser = {
   alreadyVote: false,
-  alreadyRegister: false
+  alreadyRegister: false,
+  data: undefined
 };
 
 const initialSnack = {
   isOpen: false,
-  severity: '',
+  severity: 'info',
   message: ''
 };
 

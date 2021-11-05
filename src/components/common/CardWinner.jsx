@@ -15,7 +15,7 @@ export default function CardWinner({item, position}) {
       />
       <Medal position={position} />
       <CardContent>
-        <Typography variant='h5' color='primary' component='div'>
+        <Typography variant='h6' color='primary' component='div'>
           {item.name}
         </Typography>
         <Typography gutterBottom variant='overline' color='text.secondary'>
